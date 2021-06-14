@@ -27,24 +27,21 @@ galleryList.insertAdjacentHTML('beforeend', createGalleryMarkup)
 
 function onModalOpen(e) {
    e.preventDefault()
-   
+
    if (e.target.nodeName !== "IMG") {
       return
    }
    lightbox.classList.add('is-open')
    lightboxImg.src = e.target.dataset.source
-   currentIndex = Number(e.target.dataset.index)
    window.addEventListener('keydown', onEscPress)
-   window.addEventListener('keydown', onArrowLeft)
-   window.addEventListener('keydown', onArrowRight)
+   window.addEventListener('keydown', swipeGallery)
    closeModalBtn.addEventListener('click', onModalClose)
    overlay.addEventListener('click', onModalClose)
 }
 
 function onModalClose() {
    window.removeEventListener('keydown', onEscPress)
-   window.removeEventListener('keydown', onArrowLeft)
-   window.removeEventListener('keydown', onArrowRight)
+   window.removeEventListener('keydown', swipeGallery)
    lightbox.classList.remove('is-open')
    lightboxImg.src = ''
 }
@@ -55,20 +52,33 @@ function onEscPress(e) {
    }
 }
 
-galleryList.addEventListener('click', onModalOpen)
 
-// const pastedImages = galleryList.querySelectorAll('.gallery__image')
-// const currentImage = [...pastedImages].find((img) => img.dataset.source === lightboxImg.src);
-// const currentImageIndex = Number(currentImage.dataset.index);
-
-function onArrowLeft(e) {
-   if (e.key === "ArrowLeft") {
-
+function swipeGallery(e) {
+   if (!lightbox.classList.contains('is-open')) {
+      return
    }
-}
 
-function onArrowRight(e) {
+const pastedImages = galleryList.querySelectorAll('.gallery__image')
+const currentImage = [...pastedImages].find((img) => img.dataset.source === lightboxImg.src);
+const currentImageIndex = Number(currentImage.dataset.index);
+
    if (e.key === "ArrowRight") {
-
-   }
+      if (currentImageIndex + 1 === pastedImages.length) {
+         return;
+      }
+      const nextImage = [...pastedImages].find(
+         (arrayImage) => Number(arrayImage.dataset.index) === currentImageIndex + 1
+         );
+         lightboxImg.src = nextImage.dataset.source;
+      } else if (e.key === "ArrowLeft") {
+         if (currentImageIndex - 1 === -1) {
+            return;
+         }
+         const prevImage = [...pastedImages].find(
+            (arrayImage) => Number(arrayImage.dataset.index) === currentImageIndex - 1
+            )
+            lightboxImg.src = prevImage.dataset.source;
+         }
 }
+
+galleryList.addEventListener('click', onModalOpen)
